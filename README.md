@@ -1,4 +1,4 @@
 # auto-route
 auto route plugin for webman
 
-https://www.workerman.net/plugin/16
+https://www.workerman.net/plugin/17
