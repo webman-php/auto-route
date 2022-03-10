@@ -21,6 +21,9 @@ foreach ($routes as $tmp_route) {
     $ignore_list[$tmp_route->getPath()] = 0;
 }
 
+$suffix = config('app.controller_suffix', '');
+$suffix_length = strlen($suffix);
+
 // 递归遍历目录查找控制器自动设置路由
 $dir_iterator = new \RecursiveDirectoryIterator(app_path());
 $iterator = new \RecursiveIteratorIterator($dir_iterator);
@@ -32,12 +35,17 @@ foreach ($iterator as $file) {
 
     $file_path = str_replace('\\', '/',$file->getPathname());
     // 文件路径里不带controller的文件忽略
-    if (strpos($file_path, 'controller') === false) {
+    if (strpos($file_path, '/controller/') === false) {
+        continue;
+    }
+
+    // 只处理带 controller_suffix 后缀的
+    if ($suffix_length && substr($file->getBaseName('.php'), -$suffix_length) !== $suffix) {
         continue;
     }
 
     // 根据文件路径计算uri
-    $uri_path = strtolower(str_replace('controller/', '',substr(substr($file_path, strlen(app_path())), 0, -4)));
+    $uri_path = strtolower(str_replace('/controller/', '/',substr(substr($file_path, strlen(app_path())), 0, - (4 + $suffix_length))));
     // 根据文件路径是被类名
     $class_name = str_replace('/', '\\',substr(substr($file_path, strlen(base_path())), 0, -4));
 
@@ -57,6 +65,11 @@ foreach ($iterator as $file) {
         }
         Route::any($uri, $cb);
         Route::any($uri.'/', $cb);
+        $lower_uri = strtolower($uri);
+        if ($lower_uri !== $uri) {
+            Route::any($lower_uri, $cb);
+            Route::any($lower_uri . '/', $cb);
+        }
     };
 
     // 设置路由
