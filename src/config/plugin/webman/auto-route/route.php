@@ -35,7 +35,7 @@ foreach ($iterator as $file) {
 
     $file_path = str_replace('\\', '/',$file->getPathname());
     // 文件路径里不带controller的文件忽略
-    if (strpos($file_path, '/controller/') === false) {
+    if (strpos(strtolower($file_path), '/controller/') === false) {
         continue;
     }
 
@@ -45,7 +45,7 @@ foreach ($iterator as $file) {
     }
 
     // 根据文件路径计算uri
-    $uri_path = strtolower(str_replace('/controller/', '/',substr(substr($file_path, strlen(app_path())), 0, - (4 + $suffix_length))));
+    $uri_path = str_replace(['/controller/', '/Controller/'], '/', substr(substr($file_path, strlen(app_path())), 0, - (4 + $suffix_length)));
     // 根据文件路径是被类名
     $class_name = str_replace('/', '\\',substr(substr($file_path, strlen(base_path())), 0, -4));
 
