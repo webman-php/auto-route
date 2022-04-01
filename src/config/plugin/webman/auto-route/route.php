@@ -64,7 +64,9 @@ foreach ($iterator as $file) {
             return;
         }
         Route::any($uri, $cb);
-        Route::any($uri.'/', $cb);
+        if ($uri !== '') {
+            Route::any($uri . '/', $cb);
+        }
         $lower_uri = strtolower($uri);
         if ($lower_uri !== $uri) {
             Route::any($lower_uri, $cb);
