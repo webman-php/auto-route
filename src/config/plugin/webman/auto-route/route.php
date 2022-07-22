@@ -21,6 +21,8 @@ foreach ($routes as $tmp_route) {
     $ignore_list[$tmp_route->getPath()] = 0;
 }
 
+$default_app = config('plugin.webman.auto-route.app.default_app');
+
 $suffix = config('app.controller_suffix', '');
 $suffix_length = strlen($suffix);
 
@@ -46,6 +48,17 @@ foreach ($iterator as $file) {
 
     // 根据文件路径计算uri
     $uri_path = str_replace(['/controller/', '/Controller/'], '/', substr(substr($file_path, strlen(app_path())), 0, - (4 + $suffix_length)));
+    $uri_path = strtolower($uri_path);
+
+    $is_default_app = false;
+    if (!$default_app) {
+        $seg = explode('/', $uri_path);
+        if ($seg[1] == $default_app) {
+            $uri_path = str_replace($default_app . '/', '', $uri_path);
+            $is_default_app = true;
+        }
+    }
+
     // 根据文件路径是被类名
     $class_name = str_replace('/', '\\',substr(substr($file_path, strlen(base_path())), 0, -4));
 
@@ -82,7 +95,7 @@ foreach ($iterator as $file) {
         }
         // action为index时uri里末尾/index可以省略
         if ($action === 'index') {
-            // controller也为index时可以uri里可以省略/index/index
+            // controller也为index时uri里可以省略/index/index
             if (substr($uri_path, -6) === '/index') {
                 $route(substr($uri_path, 0, -6), [$class_name, $action]);
             }
@@ -90,6 +103,4 @@ foreach ($iterator as $file) {
         }
         $route($uri_path.'/'.$action, [$class_name, $action]);
     }
-
 }
-
