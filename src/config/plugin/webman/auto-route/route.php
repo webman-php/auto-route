@@ -48,10 +48,10 @@ foreach ($iterator as $file) {
 
     // 根据文件路径计算uri
     $uri_path = str_replace(['/controller/', '/Controller/'], '/', substr(substr($file_path, strlen(app_path())), 0, - (4 + $suffix_length)));
-    $uri_path = strtolower($uri_path);
 
+    // 默认应用
     $is_default_app = false;
-    if (!$default_app) {
+    if (is_string($default_app) && !empty($default_app)) {
         $seg = explode('/', $uri_path);
         if ($seg[1] == $default_app) {
             $uri_path = str_replace($default_app . '/', '', $uri_path);
@@ -96,7 +96,10 @@ foreach ($iterator as $file) {
         // action为index时uri里末尾/index可以省略
         if ($action === 'index') {
             // controller也为index时uri里可以省略/index/index
-            if (substr($uri_path, -6) === '/index') {
+            if (strtolower(substr($uri_path, -6)) === '/index') {
+                if ($is_default_app) {
+                    $route('/', [$class_name, $action]);
+                }
                 $route(substr($uri_path, 0, -6), [$class_name, $action]);
             }
             $route($uri_path, [$class_name, $action]);
