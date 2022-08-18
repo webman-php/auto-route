@@ -73,7 +73,7 @@ foreach ($iterator as $file) {
     $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
 
     $route = function ($uri, $cb) use ($ignore_list) {
-        if (isset($ignore_list[$uri])) {
+        if (isset($ignore_list[strtolower($uri)])) {
             return;
         }
         Route::any($uri, $cb);
